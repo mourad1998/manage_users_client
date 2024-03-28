@@ -1,6 +1,6 @@
 import { useAddUser } from "../services/UserServices";
 import { UserType } from "../types";
-import UserForm from "./UserForm";
+import UserForm from "../components/UserForm";
 
 interface AddUserPageProps {
   onSuccess: () => void; // Callback function to notify success

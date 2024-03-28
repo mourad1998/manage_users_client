@@ -17,7 +17,7 @@ const UserForm: React.FC<UserFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
-
+  console.log(initialValues, "initallallalaf");
   const handleSubmit = async (values: any) => {
     setLoading(true);
     try {
@@ -47,14 +47,14 @@ const UserForm: React.FC<UserFormProps> = ({
   return (
     <Form form={form} onFinish={handleSubmit} initialValues={initialValues}>
       <Form.Item
-        name="user"
+        name={["user", "username"]}
         label="Username"
         rules={[{ required: true, message: "Please input username!" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        name="email"
+        name={["user", "email"]}
         label="Email"
         rules={[
           { required: true, message: "Please input email!" },

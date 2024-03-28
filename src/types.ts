@@ -9,3 +9,9 @@ export interface UserType {
   gender: "M" | "F";
   id: number;
 }
+
+export enum SearchCriteria {
+  Username = "username",
+  Age = "age",
+  Hometown = "hometown",
+}

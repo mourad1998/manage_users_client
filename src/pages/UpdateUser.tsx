@@ -1,5 +1,5 @@
 import { useUpdateUser } from "../services/UserServices";
-import UserForm from "./UserForm";
+import UserForm from "../components/UserForm";
 import { UserType } from "../types";
 
 interface UpdateUserPageProps {
@@ -8,6 +8,7 @@ interface UpdateUserPageProps {
 }
 
 export const UpdateUserPage = ({ user, onSuccess }: UpdateUserPageProps) => {
+  console.log(user, "user");
   const updateUserMutation = useUpdateUser();
   const handleSubmit = async (values: UserType) => {
     await updateUserMutation.mutateAsync({

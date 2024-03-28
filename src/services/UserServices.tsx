@@ -9,13 +9,23 @@ interface ApiResponse<T> {
   current_page: number;
 }
 
-export const useFetchUsers = (page: number, pageSize: number) => {
+export const useFetchUsers = (
+  page: number,
+  pageSize: number,
+  searchText: string,
+  searchCriteria: string
+) => {
   const { data, isLoading, refetch } = useQuery<ApiResponse<UserType>>(
-    ["users", page, pageSize],
+    ["users", page, pageSize, searchText, searchCriteria],
     async () => {
-      const response = await fetch(
-        `${apiUrl}/profiles?page=${page}&pageSize=${pageSize}`
-      );
+      let url = `${apiUrl}/profiles?page=${page}&pageSize=${pageSize}`;
+
+      // Add search parameters if searchText is provided
+      if (searchText && searchText.trim() !== "") {
+        url += `&${searchCriteria}=${searchText}`;
+      }
+
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch users");
       }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Space, message } from "antd";
+import { Table, Button, Modal, Space, message, Input } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -8,24 +8,60 @@ import {
 } from "@ant-design/icons";
 import type { TableColumnsType } from "antd";
 import { useFetchUsers, useDeleteUser } from "../services/UserServices";
-import { UpdateUserPage } from "../components/UpdateUser";
-import { AddUserPage } from "../components/AddUser";
-import { UserType } from "../types";
+import { UpdateUserPage } from "./UpdateUser";
+import { AddUserPage } from "./AddUser";
+import { SearchCriteria, UserType } from "../types";
+import SearchCriteriaSelect from "../components/SearchCriteriaSelect";
 
 const { confirm } = Modal;
+const { Search } = Input;
 
 const UserList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedUserData, setSelectedUserData] = useState<UserType>(null!);
-
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState<string>("");
+  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>(
+    SearchCriteria.Username
+  );
 
   // fetch users
-  const { data: usersData, isLoading, refetch } = useFetchUsers(currentPage, 6);
+  const {
+    data: usersData,
+    isLoading,
+    refetch,
+  } = useFetchUsers(currentPage, 6, searchText, searchCriteria);
 
   // delete user by ID
   const deleteUserMutation = useDeleteUser();
+
+  useEffect(() => {
+    refetch(); // Trigger a refetch whenever currentPage, searchText, or searchCriteria changes
+  }, [currentPage, searchText, searchCriteria, refetch]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleEditUser = (userId: number) => {
+    const selectedUser = usersData?.data.find((user) => user.id === userId);
+    setSelectedUserId(userId);
+
+    if (selectedUser) {
+      setSelectedUserData({
+        id: selectedUser.id,
+        user: {
+          id: selectedUser.user.id,
+          username: selectedUser.user.username,
+          email: selectedUser.user.email,
+        },
+        age: selectedUser.age,
+        hometown: selectedUser.hometown,
+        gender: selectedUser.gender,
+      });
+    }
+  };
 
   const handleDeleteUser = (userId: number) => {
     confirm({
@@ -44,34 +80,6 @@ const UserList = () => {
     });
   };
 
-  useEffect(() => {
-    refetch(); // Trigger a refetch whenever currentPage changes
-  }, [currentPage, refetch]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleEditUser = (userId: number) => {
-    const selectedUser = usersData?.data.find((user) => user.id === userId);
-    setSelectedUserId(userId);
-
-    if (selectedUser) {
-      setSelectedUserId(userId);
-      setSelectedUserData({
-        id: selectedUser.id,
-        user: {
-          id: selectedUser.user.id,
-          username: selectedUser.user.username,
-          email: selectedUser.user.email,
-        },
-        age: selectedUser.age,
-        hometown: selectedUser.hometown,
-        gender: selectedUser.gender,
-      });
-    }
-  };
-
   const handleCloseModal = () => {
     setSelectedUserId(null);
     setIsAddModalVisible(false);
@@ -79,6 +87,15 @@ const UserList = () => {
 
   const handleAddSuccess = () => {
     setIsAddModalVisible(false);
+  };
+
+  const handleSearch = (value: string) => {
+    if (value.trim() === "") {
+      setSearchText("");
+      setCurrentPage(1);
+    } else {
+      setSearchText(value);
+    }
   };
 
   const columns: TableColumnsType<UserType> = [
@@ -136,13 +153,32 @@ const UserList = () => {
       <h1 className="text-3xl text-center font-semibold mb-4">
         Gestion utilisateurs
       </h1>
-      <div className="flex justify-left m-5">
-        <Button
-          icon={<PlusOutlined />}
-          onClick={() => setIsAddModalVisible(true)}
-        >
-          Ajouter un utilisateur
-        </Button>
+      <div className="flex justify-between items-center m-5">
+        <div>
+          <Button
+            icon={<PlusOutlined />}
+            onClick={() => setIsAddModalVisible(true)}
+          >
+            Ajouter un utilisateur
+          </Button>
+        </div>
+        <div>
+          <SearchCriteriaSelect
+            defaultValue={searchCriteria}
+            onChange={setSearchCriteria}
+          />
+          <Search
+            placeholder={`Rechercher par ${
+              searchCriteria === "username"
+                ? "nom d'utilisateur"
+                : searchCriteria === "age"
+                ? "âge"
+                : "ville"
+            }`}
+            onSearch={handleSearch}
+            style={{ width: 300 }}
+          />
+        </div>
       </div>
       <div className="mx-4">
         <Table
