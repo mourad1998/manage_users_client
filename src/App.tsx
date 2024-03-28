@@ -1,7 +1,6 @@
-// App.js
-
+import "./App.css";
 import { QueryClient, QueryClientProvider } from "react-query";
-import UserList from "./UserList";
+import UserList from "./pages/UserList";
 
 const queryClient = new QueryClient();
 
