@@ -37,16 +37,22 @@ export const useFetchUsers = (
   return { data, isLoading, refetch };
 };
 
-export const useDeleteUser = () => {
+export const useAddUser = () => {
   const queryClient = useQueryClient();
-  return useMutation<void, Error, number>(
-    async (userId) => {
-      const response = await fetch(`${apiUrl}/user/${userId}`, {
-        method: "DELETE",
+  return useMutation<UserType, Error, UserType>(
+    (values) => {
+      return fetch(`${apiUrl}/profiles`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to add user");
+        }
+        return response.json();
       });
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
     },
     {
       onSuccess: () => {
@@ -82,22 +88,16 @@ export const useUpdateUser = () => {
   );
 };
 
-export const useAddUser = () => {
+export const useDeleteUser = () => {
   const queryClient = useQueryClient();
-  return useMutation<UserType, Error, UserType>(
-    (values) => {
-      return fetch(`${apiUrl}/profiles`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to add user");
-        }
-        return response.json();
+  return useMutation<void, Error, number>(
+    async (userId) => {
+      const response = await fetch(`${apiUrl}/user/${userId}`, {
+        method: "DELETE",
       });
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
     },
     {
       onSuccess: () => {
@@ -106,3 +106,5 @@ export const useAddUser = () => {
     }
   );
 };
+
+
